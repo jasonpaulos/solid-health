@@ -57,3 +57,6 @@ buck-out/
 
 # CocoaPods
 /ios/Pods/
+
+# react-native-vector-icons font files
+android/app/src/main/assets/
