@@ -14,4 +14,12 @@ module.exports = {
       },
     }),
   },
+  resolver: {
+    sourceExts: ['js', 'json', 'ts', 'tsx', 'jsx'],
+    extraNodeModules: {
+      stream: require.resolve('readable-stream'),
+      'solid-auth-cli': require.resolve('@jasonpaulos/solid-auth-client'),
+      'solid-auth-client': require.resolve('@jasonpaulos/solid-auth-client'),
+    },
+  },
 };

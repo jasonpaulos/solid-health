@@ -12,7 +12,7 @@ export default class HomeScreen extends Component<Props> {
   }
 
   render() {
-    const title = this.props.title;
+    const { title } = this.props;
     return (
       <Text>{title}</Text>
     );
