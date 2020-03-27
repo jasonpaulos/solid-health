@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
-import { Text } from 'react-native';
-import ProfileComponent from './ProfileComponent';
+import auth from '@jasonpaulos/solid-auth-client';
+import { graph } from '@jasonpaulos/rdflib';
+import { RDFProvider, WebIdProvider } from '../contexts';
+import { ProfileComponent } from './ProfileComponent';
 
 interface Props {
   webId: string
@@ -8,15 +10,19 @@ interface Props {
 
 export default class ProfileScreen extends Component<Props> {
 
+  store = graph();
+
   static getScreenName() {
     return "ProfileScreen";
   }
 
   render() {
-    const webId = 'https://jas0n.solid.community/profile/card#me';
-    
     return (
-      <ProfileComponent webId={webId} />
+      <RDFProvider value={this.store}>
+        <WebIdProvider auth={auth}>
+          <ProfileComponent />
+        </WebIdProvider>
+      </RDFProvider>
     );
   }
 }

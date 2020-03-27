@@ -1,11 +1,12 @@
 import { Navigation } from 'react-native-navigation';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { loadServices } from './data';
 import { registerScreens } from './screens';
 import HomeScreen from './screens/HomeScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import FitnessScreen from './screens/FitnessScreen';
 
-export function start() {
+export async function start() {
   registerScreens();
 
   const icons = Promise.all([
@@ -14,8 +15,11 @@ export function start() {
     Icon.getImageSource('md-contact', 20, 'red'),
   ]);
 
+  const services = loadServices();
+
   Navigation.events().registerAppLaunchedListener(async () => {
     const [homeIcon, medIcon, profileIcon] = await icons;
+    await services;
 
     Navigation.setRoot({
       root: {

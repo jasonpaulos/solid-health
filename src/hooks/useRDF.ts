@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect } from 'react';
 import { Fetcher } from '@jasonpaulos/rdflib';
 import { NamedNode, Term } from '@jasonpaulos/rdflib/lib/tf-types';
-import { RDFContext } from './screens/RDFContext';
+import { RDFContext } from '../contexts';
 
 type ValueState = {
   loading: true,

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Text,
   View,
@@ -9,16 +9,14 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { Namespace } from '@jasonpaulos/rdflib';
-import { useRDF } from '../hooks';
+import { useRDF, useWebId } from '../hooks';
+import { logIn, logOut } from '../data/session';
 
 const FOAF = Namespace('http://xmlns.com/foaf/0.1/');
 const VCARD = Namespace('http://www.w3.org/2006/vcard/ns#');
 
-interface Props {
-  webId: string
-};
-
-export default function ProfileComponent(props: Props) {
+function ProfileLoggedIn(props: { webId: string }) {
+  const [loggingOut, setLoggingOut] = useState(false);
   const name = useRDF(props.webId, FOAF('name'));
   const img = useRDF(props.webId, FOAF('img'));
 
@@ -51,12 +49,12 @@ export default function ProfileComponent(props: Props) {
       <View style={styles.headerContainer}>
         <View style={styles.headerBottom} />
         <View style={styles.imageContainer}>
-        {imgSrc == null ?
+        {imgResult == null ?
           <View style={styles.centered}>
             <Icon name="md-person" size={60} color="red" />
           </View>
         :
-          <Image source={{ uri: imgSrc }} style={styles.image} />
+          <Image source={{ uri: imgResult }} style={styles.image} />
         }
         </View>
         <Text style={styles.name}>{nameResult}</Text>
@@ -65,14 +63,61 @@ export default function ProfileComponent(props: Props) {
         <Text style={styles.webId}>{props.webId}</Text>
         <View style={styles.logoutButton}>
           <Button
-            title="Log out"
+            title={loggingOut ? "Logging out..." : "Log out"}
             color="red"
-            onPress={() => Alert.alert('Not yet implemented')}
-          />  
+            disabled={loggingOut}
+            onPress={() => {
+              setLoggingOut(true);
+              logOut()
+                .catch(err => {
+                  setLoggingOut(false);
+                  console.warn('Could not log out', err);
+                  Alert.alert('Could not log out', err.message);
+                });
+            }}
+          />
         </View>
       </View>
     </View>
-  )
+  );
+}
+
+function ProfileLoggedOut() {
+  const [loggingIn, setLoggingIn] = useState(false);
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.headerContainer}>
+        <View style={styles.headerBottom} />
+      </View>
+      <View style={styles.contentContainer}>
+        <Text style={styles.webId}>Not logged in</Text>
+        <View style={styles.logoutButton}>
+          <Button
+            title={loggingIn ? "Logging in..." : "Log in"}
+            color="red"
+            disabled={loggingIn}
+            onPress={() => {
+              setLoggingIn(true);
+              logIn().catch(err => {
+                setLoggingIn(false);
+                console.warn('Could not log in', err);
+                Alert.alert('Could not log in', err.message);
+              });
+            }}
+          />
+        </View>
+      </View>
+    </View>
+  );
+}
+
+export function ProfileComponent() {
+  const webId = useWebId();
+  return webId == null ?
+    <ProfileLoggedOut />
+  :
+    <ProfileLoggedIn webId={webId} />
 }
 
 const styles = StyleSheet.create({
