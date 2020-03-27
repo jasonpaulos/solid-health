@@ -3,11 +3,20 @@ import auth from '@jasonpaulos/solid-auth-client';
 import jwtDecode from 'jwt-decode';
 import { scopes, redirectUrl } from './oauth';
 import { registration } from './registration';
+import { storage } from './storage';
 
 const authConfig = {
   scopes,
   redirectUrl,
 };
+
+const sessionKey = 'appSession';
+
+export async function load(): Promise<void> {
+  const session = await storage.getItem(sessionKey);
+  if (session != null)
+    await auth.setSession(session);
+}
 
 function getIssuer() {
   return 'https://solid.community';
@@ -45,11 +54,17 @@ export async function logIn(): Promise<string> {
     }
   };
 
-  auth.setSession(session);
+  await Promise.all([
+    auth.setSession(session),
+    storage.setItem(sessionKey, session)
+  ]);
 
   return session.webId;
 }
 
-export function logOut(): Promise<void> {
-  return auth.logout();
+export async function logOut(): Promise<void> {
+  await Promise.all([
+    auth.logout(),
+    storage.removeItem(sessionKey)
+  ]);
 }

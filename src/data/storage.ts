@@ -33,6 +33,11 @@ export class AppStorage {
     return null;
   }
 
+  async removeItem(key: string) {
+    const storageKey = this.prefix + key;
+    await AsyncStorage.removeItem(storageKey);
+  }
+
 }
 
 export const storage = new AppStorage('solidhealth:');
