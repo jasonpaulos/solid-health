@@ -35,6 +35,9 @@ export async function start() {
                   bottomTab: {
                     text: 'Home',
                     icon: homeIcon,
+                  },
+                  layout: {
+                    orientation: ['portrait']
                   }
                 }
               },
@@ -46,6 +49,9 @@ export async function start() {
                   bottomTab: {
                     text: 'Fitness',
                     icon: medIcon,
+                  },
+                  layout: {
+                    orientation: ['portrait']
                   }
                 }
               },
@@ -57,6 +63,9 @@ export async function start() {
                   bottomTab: {
                     text: 'Profile',
                     icon: profileIcon,
+                  },
+                  layout: {
+                    orientation: ['portrait']
                   }
                 }
               },
