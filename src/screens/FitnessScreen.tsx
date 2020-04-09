@@ -1,34 +1,14 @@
 import React, { Component } from 'react';
-import { Text, Button, Alert, FlatList } from 'react-native';
-import GoogleFit, { Scopes } from 'react-native-google-fit';
-import { Calendar, CalendarList, Agenda } from 'react-native-calendars';
+import { Text, View, Alert, } from 'react-native';
+import { Calendar } from 'react-native-calendars';
 import moment from 'moment';
-
-interface DailySteps {
-  date: string,
-  value: number,
-}
-
-interface Heartrate {
-  value: number,
-  startDate: string,
-  endDate: string,
-  day: string,
-}
+import { fitness } from '../data/fitness';
 
 interface Props { };
-
-interface MonthState {
-  dailySteps: DailySteps[],
-  heartrate: Heartrate[],
-};
 
 interface State {
   authorized: boolean | null,
   selectedDay: string,
-  data: {
-    [month: string]: MonthState
-  },
 };
 
 export default class FitnessScreen extends Component<Props, State> {
@@ -42,85 +22,30 @@ export default class FitnessScreen extends Component<Props, State> {
     this.state = {
       authorized: null,
       selectedDay: moment().format('YYYY-MM-DD'),
-      data: {},
     };
   }
 
   componentDidMount() {
-    GoogleFit.checkIsAuthorized()
-      .then(() => {
-        this.setState({
-          authorized: GoogleFit.isAuthorized
-        });
+    fitness.authorize()
+      .then((success) => {
+        if (!success) {
+          Alert.alert("AUTH_FAILED");
+        }
+
+        this.onMonthChanged(this.state.selectedDay);
+      }, (err) => {
+        Alert.alert('AUTH_ERROR');
       });
   }
 
-  loadDataForMonth(month: string, changeDay: boolean = true) {
-    const m = moment(month).startOf('month');
-    const monthString = m.format('YYYY-MM-DD');
-
-    if (changeDay)
-      this.setState({ selectedDay: monthString });
-
-    if (this.state.data.hasOwnProperty(monthString))
-      return;
-
-    const options = {
-      startDate: m.format(), // required ISO8601Timestamp
-      endDate: m.endOf('month').format() // required ISO8601Timestamp
-    };
-
-    const samples = GoogleFit.getDailyStepCountSamples(options);
-
-    if (!samples) {
-      Alert.alert('Error getting data');
-      return;
+  async onMonthChanged(dateString: string) {
+    const month = fitness.getMonth(dateString);
+    if (month == null) {
+      await fitness.importMonth(dateString);
     }
-
-    GoogleFit.getHeartRateSamples(options, (err, result) => {
-      if (err) {
-        console.warn(err);
-        return;
-      }
-
-      this.setState(prevState => {
-        let dataForMonth: MonthState = { dailySteps: [], heartrate: [] };
-        if (prevState.data.hasOwnProperty(monthString))
-          dataForMonth = prevState.data[monthString]
-        
-        return {
-          data: {
-            ...prevState.data,
-            [monthString]: {
-              ...dataForMonth,
-              heartrate: result
-            }
-          }
-        }
-      });
+    this.setState({
+      selectedDay: moment(dateString).startOf('month').format('YYYY-MM-DD')
     });
-
-    samples
-    .then((res: any[]) => {
-      const steps = res.find(({ source }) => source === 'com.google.android.gms:merge_step_deltas');
-
-      this.setState(prevState => {
-        let dataForMonth: MonthState = { dailySteps: [], heartrate: [] };
-        if (prevState.data.hasOwnProperty(monthString))
-          dataForMonth = prevState.data[monthString]
-        
-        return {
-          data: {
-            ...prevState.data,
-            [monthString]: {
-              ...dataForMonth,
-              dailySteps: steps ? steps.steps : []
-            }
-          }
-        }
-      });
-    })
-    .catch((err) => {console.warn(err)})
   }
 
   onDaySelected(dateString: string) {
@@ -144,74 +69,73 @@ export default class FitnessScreen extends Component<Props, State> {
       selected: true,
     };
 
-    for (const month of Object.keys(this.state.data)) {
-      const { dailySteps, heartrate } = this.state.data[month];
+    const month = fitness.getMonth(this.state.selectedDay);
+    let loading = false;
+    if (month != null) {
+      for (const day of month) {
+        if (!markedDates.hasOwnProperty(day.date)) {
+          markedDates[day.date] = { dots: [] };
+        }
 
-      for (const entry of dailySteps) {
-        const dateString = moment(entry.date).format('YYYY-MM-DD');
-        if (!markedDates.hasOwnProperty(dateString))
-          markedDates[dateString] = { dots: [] };
-        markedDates[dateString].dots.push(stepDot);
+        if (day.steps != null) {
+          markedDates[day.date].dots.push(stepDot);
+        }
+
+        if (day.heartrate.length !== 0 && !markedDates[day.date].dots.find(dot => dot.key === heartrateDot.key)) {
+          markedDates[day.date].dots.push(heartrateDot);
+        }
       }
-  
-      for (const entry of heartrate) {
-        const dateString = moment(entry.startDate).format('YYYY-MM-DD');
-        if (!markedDates.hasOwnProperty(dateString))
-          markedDates[dateString] = { dots: [] };
-        if (!markedDates[dateString].dots.find(dot => dot.key === heartrateDot.key))
-          markedDates[dateString].dots.push(heartrateDot);
-      }
+    } else {
+      loading = true;
     }
 
     return (
-      <>
-        <Button
-          title="Authorize"
-          disabled={this.state.authorized !== false}
-          onPress={async () => {
-            const options = {
-              scopes: [
-                Scopes.FITNESS_ACTIVITY_READ_WRITE,
-                Scopes.FITNESS_BODY_READ_WRITE,
-              ],
-            }
-            GoogleFit.authorize(options)
-              .then(authResult => {
-                if (authResult.success) {
-                  Alert.alert("AUTH_SUCCESS");
-                  this.setState({
-                    authorized: true
-                  }, () => this.loadDataForMonth(moment().format()));
-                } else {
-                  Alert.alert("AUTH_DENIED", authResult.message);
-                  this.setState({
-                    authorized: false
-                  });
-                }
-              })
-              .catch(() => {
-                Alert.alert("AUTH_ERROR");
-              })
-          }}
-        />
-        <Button
-          title="Load fitness data"
-          disabled={this.state.authorized !== true || Object.keys(this.state.data).length !== 0}
-          onPress={() => this.loadDataForMonth(moment().format(), false)}
-        />
+      <View>
         <Calendar
           current={this.state.selectedDay}
           maxDate={new Date()}
           markedDates={markedDates}
           markingType={'multi-dot'}
+          displayLoadingIndicator={true}
           onDayPress={(day) => this.onDaySelected(day.dateString)}
-          onMonthChange={(month) => this.loadDataForMonth(month.dateString)}
+          onMonthChange={(month) => this.onMonthChanged(month.dateString)}
           disableArrowRight={new Date(this.state.selectedDay).getUTCMonth() === new Date().getUTCMonth()}
         />
-        <Text>
-          Selected: {moment(this.state.selectedDay).format('MMMM Do YYYY')}
-        </Text>
-        { this.state.data.hasOwnProperty(moment(this.state.selectedDay).startOf('month').format('YYYY-MM-DD')) &&
+        <View>
+          <Text>
+            Selected: {moment(this.state.selectedDay).format('MMMM Do YYYY')}
+          </Text>
+          { this.renderDay(this.state.selectedDay) }
+        </View>
+      </View>
+    );
+  }
+
+  renderDay(dateString: string) {
+    const month = fitness.getMonth(dateString);
+
+    if (month == null)
+      return null;
+    
+    const date = moment(dateString).startOf('day');
+    const firstDayOfMonth = date.clone().startOf('month');
+    const dayIndex = date.diff(firstDayOfMonth, 'days');
+
+    const data = month[dayIndex];
+
+    return (
+      <>
+        { data.steps != null && <Text> steps: {data.steps} </Text> }
+        { data.heartrate.map(({ time, value }) => (
+          <Text key={`${value}:${time}`}>
+            {Math.round(value)} bmp at {moment(time).format('h:mm:ss a')}
+          </Text>
+        )) }
+      </>
+    );
+
+    /*
+    { this.state.data.hasOwnProperty(moment(this.state.selectedDay).startOf('month').format('YYYY-MM-DD')) &&
           this.state.data[moment(this.state.selectedDay).startOf('month').format('YYYY-MM-DD')].dailySteps
             .filter(entry => (
               moment(entry.date).format('YYYY-MM-DD') == this.state.selectedDay
@@ -230,7 +154,7 @@ export default class FitnessScreen extends Component<Props, State> {
               <Text key={`${entry.value}:${entry.startDate}`}>{Math.round(entry.value)} bmp at {moment(entry.startDate).format('h:mm:ss a')}</Text>
             ))
         }
-      </>
-    );
+    
+    */
   }
 }
