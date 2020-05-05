@@ -1,6 +1,9 @@
 import { Navigation } from 'react-native-navigation';
 import { Color } from './Color';
+import { init as initAuth } from './auth';
 import { HomeScreen, HomeScreenID } from './HomeScreen';
+
+initAuth();
 
 Navigation.registerComponent(HomeScreenID, () => HomeScreen);
 

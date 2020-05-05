@@ -6,24 +6,18 @@ import {
   StyleSheet
 } from 'react-native';
 import { Color } from './Color';
+import { useWebId, logIn, logOut } from './auth';
 
 export const HomeScreenID = 'com.solidhealth.HomeScreen';
 
 export const HomeScreen: FunctionComponent = () => {
-  return (
-    <View style={styles.content}>
-      <View style={styles.greeting}>
-        <Text style={styles.userLabel} numberOfLines={1}>Logged in as [name]</Text>
-        <Text style={styles.webId} numberOfLines={1}>[webId]</Text>
-      </View>
-      <TouchableHighlight style={styles.button} underlayColor={Color.HighlightSelected}>
-        <Text style={styles.label}>View Data</Text>
-      </TouchableHighlight>
-      <TouchableHighlight style={styles.button} underlayColor={Color.HighlightSelected}>
-        <Text style={styles.label}>Sign out</Text>
-      </TouchableHighlight>
-    </View>
-  );
+  const webId = useWebId();
+
+  if (webId == null) {
+    return <LoggedOut />;
+  }
+
+  return <LoggedIn webId={webId} />;
 }
 
 (HomeScreen as any).options = {
@@ -32,6 +26,37 @@ export const HomeScreen: FunctionComponent = () => {
       text: 'Solid Health',
     }
   }
+};
+
+const LoggedOut: FunctionComponent = () => {
+  return (
+    <View style={styles.content}>
+      <View style={styles.greeting}>
+        <Text style={styles.userLabel} numberOfLines={1}>Logged in as [name]</Text>
+        <Text style={styles.webId} numberOfLines={1}>[webId]</Text>
+      </View>
+      <TouchableHighlight style={styles.button} underlayColor={Color.HighlightSelected} onPress={logIn}>
+        <Text style={styles.label}>Sign in</Text>
+      </TouchableHighlight>
+    </View>
+  );
+};
+
+const LoggedIn: FunctionComponent<{ webId: string }> = ({ webId }) => {
+  return (
+    <View style={styles.content}>
+      <View style={styles.greeting}>
+        <Text style={styles.userLabel} numberOfLines={1}>Logged in as [name]</Text>
+        <Text style={styles.webId} numberOfLines={1}>{webId}</Text>
+      </View>
+      <TouchableHighlight style={styles.button} underlayColor={Color.HighlightSelected}>
+        <Text style={styles.label}>View Data</Text>
+      </TouchableHighlight>
+      <TouchableHighlight style={styles.button} underlayColor={Color.HighlightSelected} onPress={logOut}>
+        <Text style={styles.label}>Sign out</Text>
+      </TouchableHighlight>
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
