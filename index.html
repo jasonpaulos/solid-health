@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Solid Health</title>
+  </head>
+  <body>
+    <h1>Solid Chess</h1>
+    <button id="loginButton">Loading...</button>
+    <h4 id="welcome"></h4>
+
+    <p>Log in here to begin using the Solid Health app.</p>
+
+    <script src="./solid-auth-client.bundle.js"></script>
+    <script>
+      var loginButton = document.getElementById("loginButton");
+      var welcome = document.getElementById("welcome");
+      var appLogin = document.location.hash === '#appLogin';
+      var loggedIn = true;
+
+      function onNewSession(session) {
+        if (!session) {
+          loginButton.textContent = 'Log in';
+          welcome.textContent = '';
+          loggedIn = false;
+        } else {
+          loginButton.textContent = 'Log out';
+          welcome.textContent = 'Welcome ' + session.webId;
+          loggedIn = true;
+
+          if (appLogin) {
+            var redirectUrl = './app#session=' + encodeURIComponent(JSON.stringify(session));
+            window.location.href = redirectUrl;
+          }
+        }
+      }
+
+      function logIn() {
+        if (loggedIn) {
+          solid.auth.logout();
+        } else {
+          solid.auth.popupLogin({
+            popupUri: './popup.html'
+          });
+        }
+      }
+
+      solid.auth.trackSession(onNewSession);
+      loginButton.addEventListener("click", logIn);
+    </script>
+  </body>
+</html>

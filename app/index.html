@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Solid Health</title>
+  </head>
+  <body>
+    <h1><a id="appLink">Loading...</a></h1>
+    <script>
+      var link = 'solidhealth://login' + document.location.hash;
+      document.location.hash = '';
+      var appLink = document.getElementById("appLink");
+      appLink.setAttribute('href', link);
+      appLink.textContent = 'Click here to finish logging in';
+      appLink.addEventListener('click', function () {
+        setTimeout(function () {
+          window.location.href = '../';
+        }, 0);
+      });
+    </script>
+  </body>
+</html>
