@@ -2,10 +2,12 @@ import { Navigation } from 'react-native-navigation';
 import { Color } from './Color';
 import { init as initAuth } from './auth';
 import { HomeScreen, HomeScreenID } from './HomeScreen';
+import { DataScreen, DataScreenID } from './DataScreen';
 
 initAuth();
 
 Navigation.registerComponent(HomeScreenID, () => HomeScreen);
+Navigation.registerComponent(DataScreenID, () => DataScreen);
 
 Navigation.setDefaultOptions({
   statusBar: {

@@ -9,22 +9,38 @@ import {
   Image,
   StyleSheet
 } from 'react-native';
+import { Navigation } from 'react-native-navigation';
+import { DataScreenID } from './DataScreen';
 import { Color } from './Color';
 import { useWebId, logIn, logOut } from './auth';
 import { useFetcher } from './useFetcher';
-import { buildProfile } from './Profile';
+import { Profile, buildProfile } from './Profile';
 
+function openDataScreen(componentId: string, profile: Profile) {
+  Navigation.push(componentId, {
+    component: {
+      name: DataScreenID,
+      passProps: {
+        profile
+      },
+    }
+  });
+}
 
 export const HomeScreenID = 'com.solidhealth.HomeScreen';
 
-export const HomeScreen: FunctionComponent = () => {
+interface HomeScreenProps {
+  componentId: string,
+}
+
+export const HomeScreen: FunctionComponent<HomeScreenProps> = ({ componentId }) => {
   const webId = useWebId();
 
   if (webId == null) {
     return <LoggedOut />;
   }
 
-  return <LoggedIn webId={webId} />;
+  return <LoggedIn componentId={componentId} webId={webId} />;
 }
 
 (HomeScreen as any).options = {
@@ -42,14 +58,23 @@ const LoggedOut: FunctionComponent = () => {
         <Text style={styles.userLabel} numberOfLines={1}>Logged in as [name]</Text>
         <Text style={styles.webId} numberOfLines={1}>[webId]</Text>
       </View>
-      <TouchableHighlight style={styles.button} underlayColor={Color.HighlightSelected} onPress={logIn}>
+      <TouchableHighlight
+        style={styles.button}
+        underlayColor={Color.HighlightSelected}
+        onPress={logIn}
+      >
         <Text style={styles.label}>Sign in</Text>
       </TouchableHighlight>
     </View>
   );
 };
 
-const LoggedIn: FunctionComponent<{ webId: string }> = ({ webId }) => {
+interface LoggedInProps {
+  componentId: string,
+  webId: string,
+}
+
+const LoggedIn: FunctionComponent<LoggedInProps> = ({ componentId, webId }) => {
   const response = useFetcher(webId);
   const profile = useMemo(() => buildProfile(webId, response), [webId, response]);
   
@@ -79,10 +104,18 @@ const LoggedIn: FunctionComponent<{ webId: string }> = ({ webId }) => {
         <Text style={styles.userLabel} numberOfLines={1}>{message}</Text>
         <Text style={styles.webId} numberOfLines={1}>{webId}</Text>
       </View>
-      <TouchableHighlight style={styles.button} underlayColor={Color.HighlightSelected}>
+      <TouchableHighlight
+        style={styles.button}
+        underlayColor={Color.HighlightSelected}
+        onPress={() => openDataScreen(componentId, profile)}
+      >
         <Text style={styles.label}>View Data</Text>
       </TouchableHighlight>
-      <TouchableHighlight style={styles.button} underlayColor={Color.HighlightSelected} onPress={logOut}>
+      <TouchableHighlight
+        style={styles.button}
+        underlayColor={Color.HighlightSelected}
+        onPress={logOut}
+      >
         <Text style={styles.label}>Sign out</Text>
       </TouchableHighlight>
     </View>
