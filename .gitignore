@@ -29,6 +29,10 @@ build/
 local.properties
 *.iml
 
+# Visual Studio Code
+#
+.vscode/
+
 # node.js
 #
 node_modules/
@@ -57,6 +61,3 @@ buck-out/
 
 # CocoaPods
 /ios/Pods/
-
-# react-native-vector-icons font files
-android/app/src/main/assets/
