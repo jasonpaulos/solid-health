@@ -14,4 +14,11 @@ module.exports = {
       },
     }),
   },
+  resolver: {
+    extraNodeModules: {
+      stream: require.resolve('readable-stream'), // required by n3
+      'solid-auth-cli': require.resolve('@jasonpaulos/solid-auth-client/lib/index'),
+      'solid-auth-client': require.resolve('@jasonpaulos/solid-auth-client/lib/index'),
+    },
+  },
 };

@@ -10,6 +10,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "dependencies": {
+    "@jasonpaulos/rdflib": "^1.1.0",
     "@jasonpaulos/solid-auth-client": "^2.4.1",
     "@react-native-community/async-storage": "^1.10.0",
     "assert": "^2.0.0",
@@ -19,6 +20,7 @@
     "react-native": "0.62.2",
     "react-native-navigation": "^6.5.0",
     "react-native-securerandom": "^1.0.0-rc.0",
+    "readable-stream": "^3.6.0",
     "whatwg-url": "^8.0.0"
   },
   "devDependencies": {
