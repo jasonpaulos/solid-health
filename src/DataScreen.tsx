@@ -1,25 +1,36 @@
-import React, { FunctionComponent } from 'react';
+import React, {
+  FunctionComponent,
+  useState,
+  useEffect,
+} from 'react';
 import {
-  View,
-  Text,
-  TouchableHighlight,
+  ScrollView,
   StyleSheet
 } from 'react-native';
 import { Color } from './Color';
-import { Profile } from './Profile';
+import { SyncComponent } from './SyncComponent';
+import {
+  DailyStepsPreview,
+  DailyDistancePreview,
+  HeartRatePreview,
+} from './DataSets';
 
 export const DataScreenID = 'com.solidhealth.DataScreen';
 
 interface DataScreenProps {
   componentId: string,
-  profile: Profile,
 }
 
-export const DataScreen: FunctionComponent<DataScreenProps> = ({ profile }) => {
+export const DataScreen: FunctionComponent<DataScreenProps> = ({
+  componentId,
+}) => {
   return (
-    <View style={styles.content}>
-      <Text style={styles.text}>Data Screen</Text>
-    </View>
+    <ScrollView style={styles.content}>
+      <SyncComponent />
+      <DailyStepsPreview componentId={componentId} />
+      <DailyDistancePreview componentId={componentId} />
+      <HeartRatePreview componentId={componentId} />
+    </ScrollView>
   );
 }
 
@@ -34,11 +45,6 @@ export const DataScreen: FunctionComponent<DataScreenProps> = ({ profile }) => {
 const styles = StyleSheet.create({
   content: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
     backgroundColor: Color.Background,
-  },
-  text: {
-    color: Color.TextDark,
   },
 });

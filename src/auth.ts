@@ -47,18 +47,20 @@ async function handleOpenURL({ url }: { url: string }) {
   }
 }
 
+export function onWebIdChange(listener: (webId: string | null) => any) {
+  const onSessionChange = (session: { webId: string } | null) => {
+    listener(session ? session.webId : null);
+  };
+
+  auth.trackSession(onSessionChange);
+
+  return () => auth.stopTrackSession(onSessionChange);
+}
+
 export function useWebId(): string | null {
   const [webId, setWebId] = useState<string | null>(null);
 
-  useEffect(() => {
-    const onSessionChange = (session: { webId: string } | null) => {
-      setWebId(session ? session.webId : null);
-    };
-
-    auth.trackSession(onSessionChange);
-
-    return () => auth.stopTrackSession(onSessionChange);
-  }, []);
+  useEffect(() => onWebIdChange(setWebId), []);
 
   return webId;
 }

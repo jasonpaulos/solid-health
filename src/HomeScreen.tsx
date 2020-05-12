@@ -1,7 +1,4 @@
-import React, {
-  FunctionComponent,
-  useMemo
-} from 'react';
+import React, { FunctionComponent } from 'react';
 import {
   View,
   Text,
@@ -13,16 +10,12 @@ import { Navigation } from 'react-native-navigation';
 import { DataScreenID } from './DataScreen';
 import { Color } from './Color';
 import { useWebId, logIn, logOut } from './auth';
-import { useFetcher } from './useFetcher';
-import { Profile, buildProfile } from './Profile';
+import { useProfile } from './SyncManager';
 
-function openDataScreen(componentId: string, profile: Profile) {
+function openDataScreen(componentId: string) {
   Navigation.push(componentId, {
     component: {
       name: DataScreenID,
-      passProps: {
-        profile
-      },
     }
   });
 }
@@ -55,15 +48,14 @@ const LoggedOut: FunctionComponent = () => {
   return (
     <View style={styles.content}>
       <View style={styles.greeting}>
-        <Text style={styles.userLabel} numberOfLines={1}>Logged in as [name]</Text>
-        <Text style={styles.webId} numberOfLines={1}>[webId]</Text>
+        <Text style={styles.userLabel}>Welcome to Soid Health</Text>
       </View>
       <TouchableHighlight
         style={styles.button}
         underlayColor={Color.HighlightSelected}
         onPress={logIn}
       >
-        <Text style={styles.label}>Sign in</Text>
+        <Text style={styles.label}>Sign in with Solid</Text>
       </TouchableHighlight>
     </View>
   );
@@ -75,14 +67,11 @@ interface LoggedInProps {
 }
 
 const LoggedIn: FunctionComponent<LoggedInProps> = ({ componentId, webId }) => {
-  const response = useFetcher(webId);
-  const profile = useMemo(() => buildProfile(webId, response), [webId, response]);
+  const profile = useProfile();
   
   let message;
-  if (response.loading) {
+  if (profile == null) {
     message = 'Loading...';
-  } else if (response.error) {
-    message = 'Error: ' + response.error.toString();
   } else if (profile.name) {
     message = profile.name;
   } else {
@@ -93,9 +82,9 @@ const LoggedIn: FunctionComponent<LoggedInProps> = ({ componentId, webId }) => {
     <View style={styles.content}>
       <View style={styles.greeting}>
         <View style={styles.imageContainer}>
-          {profile.image == null ?
+          {profile == null || profile.image == null ?
             <View style={styles.centered}>
-              <Text style={styles.text}>No image</Text>
+              <Text style={styles.noImage}>?</Text>
             </View>
           :
             <Image source={{ uri: profile.image }} style={styles.image} />
@@ -107,7 +96,8 @@ const LoggedIn: FunctionComponent<LoggedInProps> = ({ componentId, webId }) => {
       <TouchableHighlight
         style={styles.button}
         underlayColor={Color.HighlightSelected}
-        onPress={() => openDataScreen(componentId, profile)}
+        disabled={profile == null}
+        onPress={() => openDataScreen(componentId)}
       >
         <Text style={styles.label}>View Data</Text>
       </TouchableHighlight>
@@ -135,7 +125,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  text: {
+  noImage: {
+    fontSize: 36,
     color: Color.TextLight,
   },
   greeting: {
