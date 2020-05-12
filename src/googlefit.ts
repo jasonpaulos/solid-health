@@ -56,7 +56,10 @@ export async function getDailySteps(startDate: string | Date, endDate: string | 
   if (typeof endDate !== 'string')
     endDate = endDate.toISOString();
   
-  await authorize();
+  const success = await authorize();
+  if (!success) {
+    throw new Error('Could not authorize with Google Fit');
+  }
 
   try {
     const result: { source: string, steps: DataPoint[] }[] =
@@ -86,7 +89,10 @@ export async function getDailyDistance(startDate: string | Date, endDate: string
   if (typeof endDate !== 'string')
     endDate = endDate.toISOString();
   
-  await authorize();
+  const success = await authorize();
+  if (!success) {
+    throw new Error('Could not authorize with Google Fit');
+  }
 
   return await new Promise((resolve, reject) => {
     GoogleFit.getDailyDistanceSamples(
@@ -116,7 +122,10 @@ export async function getHeartRate(startDate: string | Date, endDate: string | D
   if (typeof endDate !== 'string')
     endDate = endDate.toISOString();
 
-  await authorize();
+  const success = await authorize();
+  if (!success) {
+    throw new Error('Could not authorize with Google Fit');
+  }
 
   return await new Promise((resolve, reject) => {
     GoogleFit.getHeartRateSamples(
