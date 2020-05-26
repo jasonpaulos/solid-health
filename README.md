@@ -22,7 +22,8 @@ Currently Solid Health is able to observe the following:
 
 ## Install
 
-TODO
+You can download the latest version of Solid Health from the [release page](https://github.com/jasonpaulos/solid-health/releases).
+Each release contains an Android APK file that can be installed on devices and emulators.
 
 ## Develop
 
