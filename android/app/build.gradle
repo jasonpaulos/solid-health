@@ -151,6 +151,14 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            if (project.hasProperty('SOLIDHEALTH_KEY_PASSWORD') && project.hasProperty('SOLIDHEALTH_STORE_PASSWORD')) {
+                storeFile file('release.keystore')
+                storePassword SOLIDHEALTH_STORE_PASSWORD
+                keyAlias 'androidreleasekey'
+                keyPassword SOLIDHEALTH_KEY_PASSWORD
+            }
+        }
     }
     buildTypes {
         debug {
