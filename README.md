@@ -59,6 +59,3 @@ Once you have the correct development enivonrment, follow these steps:
 
 You should now have an instance of the application running in debug mode. Modifying a file in
 the `src` directory should cause the app to reload with the new version of that file.
-
-Note: until [PR #156 of react-native-google-fit](https://github.com/StasDoskalenko/react-native-google-fit/pull/156)
-or a similar fix is merged, this project uses [my fork of react-native-google-fit](https://github.com/jasonpaulos/react-native-google-fit/tree/heart-rate-fix).

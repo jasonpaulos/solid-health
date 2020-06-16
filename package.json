@@ -21,7 +21,7 @@
     "react": "16.11.0",
     "react-native": "0.62.2",
     "react-native-chart-kit": "^5.5.0",
-    "react-native-google-fit": "github:jasonpaulos/react-native-google-fit#heart-rate-fix",
+    "react-native-google-fit": "^0.12.1",
     "react-native-navigation": "^6.5.0",
     "react-native-progress": "^4.1.2",
     "react-native-securerandom": "^1.0.0-rc.0",
