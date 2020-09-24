@@ -20,6 +20,8 @@ Currently Solid Health is able to observe the following:
 * Distanced walked per day
 * Instantaneous heart rate
 
+This project is part of my [Master of Engineering thesis](https://dspace.mit.edu/handle/1721.1/127459).
+
 ## Install
 
 You can download the latest version of Solid Health from the [release page](https://github.com/jasonpaulos/solid-health/releases).
